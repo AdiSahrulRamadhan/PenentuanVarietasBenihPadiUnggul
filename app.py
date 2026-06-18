@@ -943,7 +943,7 @@ elif selected == "Pembobotan":
     else:
         kriteria = [col for col in df.columns if col != "Alternatif"]
         kriteria = sorted(kriteria, key=lambda x: int(x.replace("C","")))
-        n = len(kriteria)
+        # n = len(kriteria)
         n = n*2
         config_db = load_db("config") or {}
         bobot_db = load_db("bobot") or {}
