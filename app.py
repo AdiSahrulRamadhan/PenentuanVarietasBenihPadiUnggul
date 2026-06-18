@@ -943,7 +943,7 @@ elif selected == "Pembobotan":
     else:
         kriteria = [col for col in df.columns if col != "Alternatif"]
         kriteria = sorted(kriteria, key=lambda x: int(x.replace("C","")))
-        n = len(kriteria) * 2
+        n = len(kriteria)
         config_db = load_db("config") or {}
         bobot_db = load_db("bobot") or {}
         if "ahp_matrix" in config_db and "ahp_matrix" not in st.session_state:
@@ -1321,7 +1321,7 @@ elif selected == "Pembobotan":
         - n adalah jumlah total kriteria yang dibandingkan dalam matriks perbandingan berpasangan AHP, yang digunakan untuk menghitung CI dan CR.
         """)
         st.markdown("**Penjelasan & Tujuan:** Mengukur tingkat konsistensi")
-        CI = (lambda_max - n) / (n - 1)
+        CI = (lambda_max - n*2) / (n*2 - 1)
         st.markdown("**Perhitungan CI:**")
         st.markdown(f"- λ_max (rata-rata λ_i) = {lambda_max:.6f}")
         st.markdown(f"- n (jumlah kriteria) = {n}")
