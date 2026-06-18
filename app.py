@@ -156,7 +156,7 @@ with st.sidebar:
         options=[
             "Beranda",
             "Upload Data",
-            "Preprocessing",
+            "Penyesuaian Data",
             "Pembobotan",
             "Perangkingan",
             "Evaluasi",
@@ -174,7 +174,7 @@ with st.sidebar:
         default_index=[
             "Beranda",
             "Upload Data",
-            "Preprocessing",
+            "Penyesuaian Data",
             "Pembobotan",
             "Perangkingan",
             "Evaluasi",
@@ -341,7 +341,7 @@ menghasilkan rekomendasi varietas benih padi. Dapat digunakan oleh penyuluh, pen
         st.markdown("""
         <div class="feature">
             <div class="icon">⚙️</div>
-            <div class="title">Preprocessing</div>
+            <div class="title">Penyesuaian Data</div>
             <div class="desc">Pembersihan data, pemilihan kriteria, dan konfigurasi alternatif secara interaktif.</div>
         </div>
         """, unsafe_allow_html=True)
@@ -515,13 +515,13 @@ Mendukung CSV & Excel dan auto separator.
         colA,colB,colC = st.columns([6,1,2])
         with colC:
             st.markdown('<div class="blue-btn">', unsafe_allow_html=True)
-            if st.button("➡️ Preprocessing Data"):
-                st.session_state.menu = "Preprocessing"
+            if st.button("➡️ Penyesuaian Data"):
+                st.session_state.menu = "Penyesuaian Data"
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 # MENU PREPROCESSING
-elif selected == "Preprocessing":
-    st.title("Preprocessing Data")
+elif selected == "Penyesuaian Data":
+    st.title("Penyesuaian Data")
     df = st.session_state.data
     if df is None:
         st.warning("Upload data dulu")
