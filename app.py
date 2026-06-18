@@ -700,7 +700,7 @@ elif selected == "Preprocessing":
                 st.rerun()
             except Exception as e:
                 st.error(f"❌ Error: {e}")
-        st.subheader("1️⃣ Hapus Fitur")
+        st.subheader("1️⃣ Hapus Kolom")
         st.markdown("""
         **Penjelasan:**
         Tahap ini digunakan untuk menghapus kolom yang tidak diperlukan dalam proses pengambilan keputusan.
