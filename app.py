@@ -1321,7 +1321,7 @@ elif selected == "Pembobotan":
         - n adalah jumlah total kriteria yang dibandingkan dalam matriks perbandingan berpasangan AHP, yang digunakan untuk menghitung CI dan CR.
         """)
         st.markdown("**Penjelasan & Tujuan:** Mengukur tingkat konsistensi")
-        CI = (lambda_max - n) / (n - 1)
+        CI = (lambda_max - n*2) / (n*2 - 1)
         st.markdown("**Perhitungan CI:**")
         st.markdown(f"- λ_max (rata-rata λ_i) = {lambda_max:.6f}")
         st.markdown(f"- n (jumlah kriteria) = {n}")
