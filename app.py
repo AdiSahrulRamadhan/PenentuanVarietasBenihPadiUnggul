@@ -1321,12 +1321,11 @@ elif selected == "Pembobotan":
         - n adalah jumlah total kriteria yang dibandingkan dalam matriks perbandingan berpasangan AHP, yang digunakan untuk menghitung CI dan CR.
         """)
         st.markdown("**Penjelasan & Tujuan:** Mengukur tingkat konsistensi")
-        n_baru = n*2
-        CI = (lambda_max - n_baru) / (n_baru - 1)
+        CI = (lambda_max - n) / (n - 1)
         st.markdown("**Perhitungan CI:**")
         st.markdown(f"- λ_max (rata-rata λ_i) = {lambda_max:.6f}")
-        st.markdown(f"- n (jumlah kriteria) = {n_baru}")
-        st.markdown(f"- CI (Consistency Index)= ({lambda_max:.6f} - {n_baru}) / ({n_baru} - 1) = {CI:.6f}")
+        st.markdown(f"- n (jumlah kriteria) = {n}")
+        st.markdown(f"- CI (Consistency Index)= ({lambda_max:.6f} - {n}) / ({n} - 1) = {CI:.6f}")
 
         st.subheader("8️⃣ Consistency Ratio (CR)")
         st.markdown("**Nilai Random Index (RI)**, adalah nilai indeks acak yang digunakan sebagai standar pembanding dalam Analytical Hierarchy Process (AHP) untuk mengukur konsistensi penilaian.")
