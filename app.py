@@ -1322,7 +1322,6 @@ elif selected == "Pembobotan":
         """)
         st.markdown("**Penjelasan & Tujuan:** Mengukur tingkat konsistensi")
         baru = n*2
-        baru = n
         n = baru
         CI = (lambda_max - n) / (n - 1)
         st.markdown("**Perhitungan CI:**")
