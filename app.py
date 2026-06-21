@@ -5,6 +5,8 @@ import numpy as np
 import sqlite3
 import json
 from streamlit_option_menu import option_menu
+from io import BytesIO
+import os
 # DATABASE
 DB_PATH = "database.db"
 def get_conn():
@@ -210,7 +212,7 @@ if data_db:
         st.session_state.data = None
 else:
     st.session_state.data = None
-# LOAD PREPROCESSING
+# LOAD Penyesuaian Data
 pre = load_db("preprocess")
 if pre:
     st.session_state.data_preprocessed = pd.DataFrame(pre)
@@ -307,7 +309,7 @@ menghasilkan rekomendasi varietas benih padi. Dapat digunakan oleh penyuluh, pen
 <hr>
 <strong>Fitur dinamis yang dapat diinputkan pengguna:</strong>
 <ul>
-    <li><strong>Alternatif:</strong> Daftar varietas benih padi yang akan dibandingkan. Pengguna bisa menambah / menghapus alternatif melalui menu preprocessing.</li>
+    <li><strong>Alternatif:</strong> Daftar varietas benih padi yang akan dibandingkan. Pengguna bisa menambah / menghapus alternatif melalui menu Penyesuaian Data.</li>
     <li><strong>Kriteria & Subkriteria:</strong> Tambah, hapus, atau edit kriteria (mis. produktivitas, umur panen, ketahanan penyakit, harga, kebutuhan air). Subkriteria juga didukung untuk kriteria yang kompleks.</li>
     <li><strong>Bobot AHP / Fuzzy:</strong> Pengguna dapat memasukkan matriks perbandingan berpasangan AHP atau menggunakan antarmuka fuzzy untuk menilai preferensi; sistem menghitung bobot otomatis.</li>
     <li><strong>Data Alternatif (atribut):</strong> Semua atribut numerik atau kategori untuk tiap alternatif dapat diunggah lewat CSV/Excel atau diedit langsung di tabel aplikasi.</li>
@@ -317,7 +319,7 @@ menghasilkan rekomendasi varietas benih padi. Dapat digunakan oleh penyuluh, pen
 <strong>Contoh alur dinamis:</strong>
 <ol>
     <li>Upload dataset (CSV/Excel) dengan kolom alternatif + atribut.</li>
-    <li>Pilih dan atur kriteria serta subkriteria di menu preprocessing.</li>
+    <li>Pilih dan atur kriteria serta subkriteria di menu Penyesuaian Data.</li>
     <li>Masukkan atau hitung bobot (AHP / Fuzzy AHP).</li>
     <li>Jalankan TOPSIS untuk menghasilkan peringkat, lalu evaluasi hasil dengan Spearman / NDCG.</li>
     <li>Simpan konfigurasi sebagai skenario dan ekspor hasil bila perlu.</li>
@@ -403,8 +405,6 @@ Mendukung CSV & Excel dan auto separator.
                 notif.empty()
                 st.stop()
             df = None
-            from io import BytesIO
-            import os
             ext = os.path.splitext(fname_lower)[1]
             try:
                 if ext == ".csv":
@@ -519,7 +519,7 @@ Mendukung CSV & Excel dan auto separator.
                 st.session_state.menu = "Penyesuaian Data"
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
-# MENU PREPROCESSING
+# MENU PENYESUAIAN DATA
 elif selected == "Penyesuaian Data":
     st.title("Penyesuaian Data")
     df = st.session_state.data
@@ -530,7 +530,7 @@ elif selected == "Penyesuaian Data":
         if pre_db:
             st.session_state.data_preprocessed = pd.DataFrame(pre_db)
         if "data_preprocessed" in st.session_state:
-            st.info("📌 Menggunakan hasil preprocessing tersimpan")
+            st.info("📌 Menggunakan hasil Penyesuaian Data tersimpan")
             df_preview = (st.session_state.data_preprocessed.copy())
             config_db = load_db("config")
             list_kriteria = []
@@ -700,7 +700,7 @@ elif selected == "Penyesuaian Data":
                 st.rerun()
             except Exception as e:
                 st.error(f"❌ Error: {e}")
-        st.subheader("1️⃣ Hapus Kolom")
+        st.subheader("1️⃣ Hapus Fitur")
         st.markdown("""
         **Penjelasan:**
         Tahap ini digunakan untuk menghapus kolom yang tidak diperlukan dalam proses pengambilan keputusan.
@@ -787,7 +787,7 @@ elif selected == "Penyesuaian Data":
             - Agak Pulen → 2
             - Keras → 1
 
-            Silakan isi sub-kriteria pada form di bawah ini. Setelah selesai, klik **Simpan Preprocessing**
+            Silakan isi sub-kriteria pada form di bawah ini. Setelah selesai, klik **Simpan Penyesuaian Data**
             untuk menyimpan mapping dan melanjutkan ke tahap pembobotan.
             """, unsafe_allow_html=True)
             sub_config = {}
@@ -854,7 +854,7 @@ elif selected == "Penyesuaian Data":
                         opsi_list.append({"kategori":kategori,"nilai":nilai})
                     st.markdown("<hr style='margin:8px 0'>", unsafe_allow_html=True)
                 sub_config[k] = {"tipe":tipe,"opsi":opsi_list}
-        if st.button("💾 Simpan Preprocessing"):
+        if st.button("💾 Simpan Penyesuaian Data"):
             try:
                 if not kriteria:
                     st.error("❌ Kriteria belum dipilih!")
@@ -917,7 +917,7 @@ elif selected == "Penyesuaian Data":
                     kode = f"C{list(kriteria).index(k)+1}"
                     df_final[kode] = hasil
                 if df_final.empty:
-                    st.error("❌ Hasil preprocessing kosong!")
+                    st.error("❌ Hasil Penyesuaian Data kosong!")
                     st.stop()
                 save_db("preprocess", df_final.to_dict())
                 save_db("config", {
@@ -928,7 +928,7 @@ elif selected == "Penyesuaian Data":
                     "mapping_kriteria": mapping_kriteria
                 })
                 st.session_state.data_preprocessed = df_final
-                st.success("✅ Preprocessing berhasil disimpan! Mengalihkan ke Pembobotan...")
+                st.success("✅ Penyesuaian Data berhasil disimpan! Mengalihkan ke Pembobotan...")
                 time.sleep(3)
                 st.session_state.menu = "Pembobotan"
                 st.rerun()
@@ -939,7 +939,7 @@ elif selected == "Pembobotan":
     st.title("Pembobotan Kriteria (AHP)")
     df = st.session_state.get("data_preprocessed")
     if df is None:
-        st.warning("Lakukan preprocessing dulu")
+        st.warning("Lakukan Penyesuaian Data dulu")
     else:
         kriteria = [col for col in df.columns if col != "Alternatif"]
         kriteria = sorted(kriteria, key=lambda x: int(x.replace("C","")))
@@ -1321,16 +1321,22 @@ elif selected == "Pembobotan":
         - n adalah jumlah total kriteria yang dibandingkan dalam matriks perbandingan berpasangan AHP, yang digunakan untuk menghitung CI dan CR.
         """)
         st.markdown("**Penjelasan & Tujuan:** Mengukur tingkat konsistensi")
-        baru = n*2
-        n = baru
-        CI = (lambda_max - n) / (n - 1)
+        if n > 1:
+            CI = (lambda_max - n) / (n - 1)
+            CI = round(CI, 6)
+            if CI == 0.0:
+                CI = 0.0
+        else:
+            CI = 0.0
         st.markdown("**Perhitungan CI:**")
-        st.markdown(f"- λ_max (rata-rata λ_i) = {lambda_max:.6f}")
-        st.markdown(f"- n (jumlah kriteria) = {n}")
-        st.markdown(f"- CI (Consistency Index)= ({lambda_max:.6f} - {n}) / ({n} - 1) = {CI:.6f}")
-
+        st.markdown(f"- $\lambda_{{max}}$ (rata-rata $\lambda_i$) = {lambda_max:.6f}")
+        st.markdown(f"- $n$ (jumlah kriteria) = {n}")
+        if n > 1:
+            st.markdown(f"- CI (Consistency Index) = ({lambda_max:.6f} - {n}) / ({n} - 1) = {CI:.6f}")
+        else:
+            st.markdown(f"- CI (Consistency Index) = **{CI:.6f}** (Matriks 1x1 selalu konsisten)")
         st.subheader("8️⃣ Consistency Ratio (CR)")
-        st.markdown("**Nilai Random Index (RI)**, adalah nilai indeks acak yang digunakan sebagai standar pembanding dalam Analytical Hierarchy Process (AHP) untuk mengukur konsistensi penilaian.")
+        st.markdown("**Nilai Random Index (RI)**, adalah nilai indeks acak yang digunakan sebagai standar pembanding dalam Analytical Hierarchy Process (AHP) untuk mengukur konsistensi penilaian.") 
         RI_full = {
             1:0.00, 2:0.00, 3:0.52, 4:0.89, 5:1.11,
             6:1.25, 7:1.35, 8:1.40, 9:1.45, 10:1.49
@@ -1362,9 +1368,11 @@ elif selected == "Pembobotan":
         """)
         st.markdown(f"- CI (Consistency Index) = {CI:.6f}")
         ri_val = RI_full.get(n, 1.49)
+        if ri_val > 0:
+            CR = CI / ri_val
+        else:
+            CR = 0.00
         st.markdown(f"- RI (Random Index) = {ri_val:.2f}")
-        CR = CI / RI_full.get(n, 1.49)
-        ri_val = RI_full.get(n, 1.49)
         st.write(f"CR = {CI:.6f} / {ri_val:.2f} = {CR:.6f}")
         st.write(CR)
         st.markdown("""
@@ -2045,7 +2053,7 @@ elif selected == "Perangkingan":
         st.subheader("1️⃣ Matriks Keputusan")
         st.markdown("""
         **Penjelasan:**
-        Matriks keputusan data berisi nilai setiap alternatif terhadap setiap kriteria yang sudah dipreprocessing.
+        Matriks keputusan data berisi nilai setiap alternatif terhadap setiap kriteria yang sudah di-Penyesuaian Data.
 
         **Tujuan:**
         Menjadi dasar perhitungan TOPSIS.
@@ -2779,7 +2787,7 @@ elif selected == "Perangkingan":
 elif selected == "Panduan Input":
     st.title("📘 Panduan Input — Langkah demi Langkah")
     st.markdown("""
-    Halaman ini memberi panduan lengkap tentang apa yang harus disiapkan saat upload data, dari format file hingga tips singkat untuk preprocessing dan pembobotan.
+    Halaman ini memberi panduan lengkap tentang apa yang harus disiapkan saat upload data, dari format file hingga tips singkat untuk Penyesuaian Data dan pembobotan.
     """, unsafe_allow_html=True)
     example_df = pd.DataFrame({"Alternatif": ["Var_A","Var_B","Var_C"],"Produktivitas": [9, 7, 5],"Harga": [1200, 1000, 1500],"Ketahanan": ["Tinggi","Sedang","Rendah"]})
     with st.expander("📥 Panduan Upload Data", expanded=False):
@@ -2822,14 +2830,14 @@ elif selected == "Panduan Input":
                     st.caption("Preview hanya untuk demo — file ini tidak disimpan ke database oleh uploader demo.")   
                 except Exception as e:
                     st.error(f"Gagal membaca file demo: {e}")
-    # Panduan Preprocessing 
-    with st.expander("🛠️ Panduan Preprocessing", expanded=False):
+    # Panduan Penyesuaian Data
+    with st.expander("🛠️ Panduan Penyesuaian Data", expanded=False):
         st.markdown("""
-        Ringkasan Preprocessing (singkat): gunakan kontrol di bawah untuk menyiapkan data.
+        Ringkasan Penyesuaian Data (singkat): gunakan kontrol di bawah untuk menyiapkan data.
         """, unsafe_allow_html=True)
         st.markdown("""
         ### Demo Interaktif (Contoh)
-        Anda dapat mencoba langkah-langkah preprocessing pada contoh data berikut. Pilih fitur untuk di-drop, pilih kriteria, tentukan alternatif, lalu buat mapping sub-kriteria.
+        Anda dapat mencoba langkah-langkah Penyesuaian Data pada contoh data berikut. Pilih fitur untuk di-drop, pilih kriteria, tentukan alternatif, lalu buat mapping sub-kriteria.
         Setelah mengatur mapping, lihat preview hasil konversi (C1..Cn) di bawah.
         """, unsafe_allow_html=True)
         demo_df = example_df.copy()
@@ -2856,7 +2864,7 @@ elif selected == "Panduan Input":
                 quick_col_type = st.selectbox("Tipe", ["Numerik", "String"], index=0, key="demo_quick_col_type")
             if st.button("➕ Tambahkan Kolom (demo)", key="demo_add_col_btn"):
                 st.info(f"Kolom '{quick_col_name}' ditambahkan ke preview (demo). Ini tidak menyimpan ke database.")
-            st.caption("Tambahkan/hapus/ganti nama kolom pada preview (demo). Gunakan ini untuk mencoba format kolom sebelum menyimpan di Preprocessing asli.")
+            st.caption("Tambahkan/hapus/ganti nama kolom pada preview (demo). Gunakan ini untuk mencoba format kolom sebelum menyimpan di Penyesuaian Data asli.")
             cols_removable = [c for c in demo_df.columns]
             sel_remove = st.multiselect("Pilih kolom untuk dihapus dari preview (demo)", cols_removable, key="demo_sel_remove")
             if st.button("🗑️ Hapus Kolom (demo)", key="demo_remove_col_btn"):
@@ -2875,7 +2883,7 @@ elif selected == "Panduan Input":
                     st.error("❌ Nama kolom baru sudah ada (duplikat)")
                 else:
                     st.info(f"Kolom '{col_to_rename}' diganti menjadi '{new_col_name}' di preview (demo). Ini tidak menyimpan ke database.")
-            st.caption("Ganti nama kolom di preview untuk memastikan struktur data sebelum menyimpan di Preprocessing utama.")
+            st.caption("Ganti nama kolom di preview untuk memastikan struktur data sebelum menyimpan di Penyesuaian Data utama.")
         st.markdown("""
         <div style='display:flex; gap:16px; margin-top:12px'>
             <div style='background:#e6f2ff; padding:12px; border-radius:8px; flex:1'>Jumlah Baris: <strong>{rows}</strong></div>
@@ -2884,8 +2892,8 @@ elif selected == "Panduan Input":
         """.format(rows=len(demo_df), cols=len(demo_df.columns)), unsafe_allow_html=True)
         st.markdown("**Penjelasan (demo):** Klik tombol ini untuk mensimulasikan menyimpan perubahan pada tabel. Ini hanya demo dan tidak akan mengubah database aplikasi.")
         if st.button("💾 Simpan Perubahan Data (demo)", key="demo_save_btn"):
-            st.success("✅ Simulasi simpan selesai. Untuk menyimpan nyata, gunakan halaman Preprocessing dan klik 'Simpan Perubahan Data'.")
-        st.caption("Simpan Perubahan Data (demo) hanya simulasi. Untuk menyimpan permanen, gunakan halaman Preprocessing dan tombol Simpan.")
+            st.success("✅ Simulasi simpan selesai. Untuk menyimpan nyata, gunakan halaman Penyesuaian Data dan klik 'Simpan Perubahan Data'.")
+        st.caption("Simpan Perubahan Data (demo) hanya simulasi. Untuk menyimpan permanen, gunakan halaman Penyesuaian Data dan tombol Simpan.")
         st.markdown("---")
         auto_preview = st.checkbox("Tampilkan preview otomatis", value=True, key="demo_auto_preview")
         st.caption("Centang untuk melihat preview konversi (C1..Cn) secara otomatis saat Anda mengubah mapping sub-kriteria.")
@@ -3659,12 +3667,10 @@ elif selected == "Evaluasi":
     st.markdown("#### 1) Hitung DCG (Discounted Cumulative Gain)")
     st.markdown("Menyusun hasil alternatif berdasarkan nilai **Preferensi tertinggi (Top-K)** dari sistem, lalu menghitung kontribusi skor kemiripannya.")
     st.latex(r"DCG_p = \sum_{i=1}^{p} \frac{rel_i}{\log_2(i + 1)}")
-    st.markdown("""
-    **Keterangan:**
+    st.markdown("""**Keterangan:**
     * $rel_i$ = nilai relevansi alternatif pada posisi ke-$i$
     * $i$ = posisi alternatif dalam peringkat
-    * $p$ = jumlah alternatif yang dievaluasi ($Top-K$)
-    """)
+    * $p$ = jumlah alternatif yang dievaluasi ($Top-K$)""")
     df_ndcg = df_merge.sort_values("Preferensi", ascending=False).reset_index(drop=True)
     df_ndcg = df_ndcg.head(k).copy()
     df_ndcg["Posisi"] = df_ndcg.index + 1
@@ -3695,10 +3701,8 @@ elif selected == "Evaluasi":
     st.markdown("#### 2) Hitung IDCG (Ideal DCG)")
     st.markdown("Menyusun ulang urutan alternatif di atas berdasarkan **Relevansi tertinggi** secara ideal menurut penilaian Pakar.")
     st.latex(r"IDCG_p = \sum_{i=1}^{p} \frac{rel_i^*}{\log_2(i + 1)}")
-    st.markdown("""
-    **Keterangan:**
-    * $rel_i^*$ = nilai relevansi alternatif pada posisi ke-$i$ berdasarkan peringkat ideal (referensi pakar)
-    """)
+    st.markdown("""**Keterangan:**
+    * $rel_i^*$ = nilai relevansi alternatif pada posisi ke-$i$ berdasarkan peringkat ideal (referensi pakar)""")
     df_idcg = df_ndcg.sort_values("rel_numeric", ascending=False).reset_index(drop=True)
     df_idcg["Posisi"] = df_idcg.index + 1
     df_idcg["log_numeric_ideal"] = np.log2(df_idcg["Posisi"] + 1)
@@ -3721,10 +3725,8 @@ elif selected == "Evaluasi":
     st.latex(rf"\text{{NDCG}}@{k} = \frac{{{dcg:.6f}}}{{{idcg:.6f}}}")
     st.success(f"**Nilai NDCG@{k} = {ndcg_val:.4f}**")
     st.markdown(f"**Cara Membaca Nilai NDCG@{k}:**")
-    st.markdown(f"""
-    *   **Nilai mendekati 1**: Rekomendasi peringkat sistem sangat akurat karena berhasil menempatkan alternatif pilihan terbaik pakar di bagian paling atas daftar.
-    *   **Nilai mendekati 0**: Susunan rekomendasi sistem di bagian atas daftar sangat tidak sesuai dengan urutan ideal milik pakar.
-    """)
+    st.markdown(f"""*   **Nilai mendekati 1**: Rekomendasi peringkat sistem sangat akurat karena berhasil menempatkan alternatif pilihan terbaik pakar di bagian paling atas daftar.
+    *   **Nilai mendekati 0**: Susunan rekomendasi sistem di bagian atas daftar sangat tidak sesuai dengan urutan ideal milik pakar.""")
     st.header("📊 Hasil Evaluasi Semua Skenario")
     hasil = []
     for s in skenario_list:
@@ -3751,8 +3753,7 @@ elif selected == "Evaluasi":
     df_hasil = pd.DataFrame(hasil)
     st.dataframe(df_hasil, use_container_width=True)
     st.subheader("🏆 Alternatif Terbaik (rata-rata nilai preferensi tertinggi dari semua skenario)")
-    st.markdown("""
-    **Penjelasan singkat sumber hasil:**
+    st.markdown("""**Penjelasan singkat sumber hasil:**
 
     - Hasil terbaik ditentukan dari *rata‑rata preferensi* (Mean Preferensi) setiap alternatif yang dihitung dari semua skenario yang tersimpan.
     - Untuk tiap skenario, aplikasi mengambil tabel `ranking` yang berisi kolom `Alternatif` dan `Preferensi`. Nilai preferensi tersebut digabung ke dalam satu daftar, lalu dihitung rata‑rata per alternatif.
@@ -3794,30 +3795,21 @@ elif selected == "Evaluasi":
     df_stabil = df_hasil.groupby("Metode").agg({"Spearman": ["mean", "std"],f"NDCG@{k}": ["mean", "std"]}).reset_index()
     df_stabil.columns = ["Metode","Mean Spearman","Std Spearman",f"Mean NDCG@{k}",f"Std NDCG@{k}"]
     st.dataframe(df_stabil, use_container_width=True)
-    st.markdown("""
-    **Keterangan singkat (Mean & Std):**
+    st.markdown("""**Keterangan singkat (Mean & Std):**
 
     - Mean (rata‑rata): menunjukkan nilai rata‑rata metrik (Spearman atau NDCG@K) untuk tiap metode di seluruh skenario. Mean tinggi berarti metode cenderung memberikan hasil yang lebih mirip dengan pakar (untuk Spearman) atau lebih mendekati urutan ideal (untuk NDCG).
     - Std (standar deviasi): mengukur variasi/metrik antar skenario. Std kecil berarti hasil metode stabil/konisten antar skenario; Std besar berarti hasil sangat berfluktuasi tergantung skenario.
 
     Penjelasan praktis:
     - Metode yang baik biasanya memiliki Mean tinggi dan Std kecil (konsisten & akurat).
-    - Di halaman ini memilih "Metode Paling Stabil" berdasarkan Std (variansi Spearman terendah), karena stabilitas penting untuk konsistensi rekomendasi.
-    """)
+    - Di halaman ini memilih "Metode Paling Stabil" berdasarkan Std (variansi Spearman terendah), karena stabilitas penting untuk konsistensi rekomendasi.""")
     terbaik_stabil = df_stabil.sort_values(by="Std Spearman").iloc[0]
-    st.success(f"""
-    📌 Metode Paling Stabil: {terbaik_stabil['Metode']}
+    st.success(f"""📌 Metode Paling Stabil: {terbaik_stabil['Metode']}
 
     Alasan:
     - Variasi Spearman paling kecil (Std = {terbaik_stabil['Std Spearman']:.4f})
-    - Hasil ranking paling konsisten antar skenario
-    """)
-# FOOTER COPYRIGHT
-st.markdown("""
-<style>
-.footer{position:fixed;left:0;bottom:0;width:100%;background:linear-gradient(90deg,#0f766e,#14b8a6);color:white;text-align:center;padding:10px;font-size:14px;font-weight:500;z-index:999;box-shadow:0 -2px 12px rgba(0,0,0,0.12);}
+    - Hasil ranking paling konsisten antar skenario""")
+st.markdown(""" <style>.footer{position:fixed;left:0;bottom:0;width:100%;background:linear-gradient(90deg,#0f766e,#14b8a6);color:white;text-align:center;padding:10px;font-size:14px;font-weight:500;z-index:999;box-shadow:0 -2px 12px rgba(0,0,0,0.12);}
 .footer span{font-weight:700;color:#ffffff;}
 .block-container{padding-bottom:70px;}
-</style>
-<div class="footer">© 2026 Sistem Pendukung Keputusan Pemilihan Varietas Benih Padi | Developed by <span>Adi Sahrul Ramadhan</span></div>
-""", unsafe_allow_html=True)    
+</style><div class="footer">© 2026 Sistem Pendukung Keputusan Pemilihan Varietas Benih Padi | Developed by <span>Adi Sahrul Ramadhan</span></div>""", unsafe_allow_html=True)    
