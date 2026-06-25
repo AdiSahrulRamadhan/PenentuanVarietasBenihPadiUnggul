@@ -3020,7 +3020,7 @@ elif selected == "Panduan Input":
         kriteria_guide = ["C1 (Kriteria 1)", "C2 (Kriteria 2)", "C3 (Kriteria 3)"]
         A_consistent = pd.DataFrame([[1.0, 0.3333, 2.0],[3.0, 1.0,    3.0],[0.5, 0.3333, 1.0]],columns=kriteria_guide,index=kriteria_guide)
         A_inconsistent = pd.DataFrame([[1.0, 9.0, 7.0],[1.0/9.0, 1.0, 8.0],[1.0/7.0, 1.0/8.0, 1.0]],columns=kriteria_guide,index=kriteria_guide)
-        pilihan = st.selectbox("📋 Pilih Contoh Matriks:",["Contoh Konsisten", "Contoh Tidak Xiaokonsisten"],index=0,key="panduan_example_select")
+        pilihan = st.selectbox("📋 Pilih Contoh Matriks:",["Contoh Konsisten", "Contoh Tidak Konsisten"],index=0,key="panduan_example_select")
         st.caption("Pilih contoh untuk memuat matriks. Anda dapat mengubah nilai di bagian atas diagonal.")
         if pilihan == "Contoh Konsisten":
             default_matrix = A_consistent.copy()
