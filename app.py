@@ -3577,8 +3577,7 @@ elif selected == "Evaluasi":
     st.session_state.rank_pakar = df_pakar.copy()
     st.subheader("2️⃣ Pengaturan NDCG")
     k = st.number_input("Hitung NDCG Top-K",min_value=1,max_value=len(alternatif),value=min(3, len(alternatif)))
-    st.markdown("""
-    **Penjelasan singkat NDCG@K:**
+    st.markdown(""" **Penjelasan singkat NDCG@K:**
 
     NDCG (Normalized Discounted Cumulative Gain) adalah metrik evaluasi
     untuk mengukur kualitas urutan (ranking) hasil sistem terhadap urutan
@@ -3589,8 +3588,7 @@ elif selected == "Evaluasi":
     - NDCG menormalisasi DCG agar bernilai antara 0 dan 1 (1 = sempurna).
 
     Pilih K sesuai kebutuhan: jika pengguna hanya melihat 3 rekomendasi teratas,
-    gunakan K=3. Untuk evaluasi umum, K=5 atau K=10.
-    """, unsafe_allow_html=True)
+    gunakan K=3. Untuk evaluasi umum, K=5 atau K=10. """, unsafe_allow_html=True)
     st.header("🔍 Detail Perhitungan per Skenario")
     sk_names = [s.get("nama", f"Skenario {i+1}") for i, s in enumerate(skenario_list)]
     sel_idx = st.selectbox("Pilih Skenario untuk dilihat detailnya:", options=sk_names, index=0, key="detail_skenario_select")
@@ -3605,16 +3603,14 @@ elif selected == "Evaluasi":
     df_rank = pd.DataFrame(sel_skenario.get("ranking", [])).copy()
     df_merge = df_rank.merge(df_pakar, on="Alternatif", how="inner")
     st.subheader("3️⃣ Tabel Perbandingan Ranking")
-    st.markdown("""
-    **Penjelasan:**
+    st.markdown(""" **Penjelasan:**
     Tabel ini membandingkan hasil peringkat dari **Sistem** dengan peringkat asli dari **Pakar**. 
     Kami menghitung selisih peringkat untuk menguji keakuratan sistem.
                 
     *   **Rank Sistem**: Urutan alternatif terbaik berdasarkan hasil perhitungan aplikasi/algoritma.
     *   **Rank Pakar**: Urutan alternatif terbaik menurut penilaian langsung dari ahlinya.
     *   **d (Selisih)**: Jarak/selisih antara peringkat sistem dan peringkat pakar. **Semakin mendekati 0, semakin akurat.**
-    *   **d² (Kuadrat)**: Nilai selisih yang dikuadratkan (digunakan untuk rumus pencarian total error/Korelasi Spearman).
-    """)
+    *   **d² (Kuadrat)**: Nilai selisih yang dikuadratkan (digunakan untuk rumus pencarian total error/Korelasi Spearman). """)
     df_detail = df_merge[["Alternatif", "Ranking", "Rank Pakar"]].copy()
     df_detail = df_detail.rename(columns={"Ranking": "Rank Sistem", "Rank Pakar": "Rank Pakar"})
     d_numeric = df_detail["Rank Sistem"] - df_detail["Rank Pakar"]
@@ -3622,7 +3618,6 @@ elif selected == "Evaluasi":
     df_detail["d (Selisih)"] = df_detail.apply(lambda r: f"{r['Rank Sistem']:.0f} - {r['Rank Pakar']:.0f} = {(r['Rank Sistem'] - r['Rank Pakar']):.0f}", axis=1)
     df_detail["d² (Kuadrat)"] = df_detail.apply(lambda r: f"({(r['Rank Sistem'] - r['Rank Pakar']):.0f})² = {((r['Rank Sistem'] - r['Rank Pakar'])**2):.0f}", axis=1)
     st.dataframe(df_detail, use_container_width=True)
-    # SPEARMAN
     st.subheader("4️⃣ Spearman Rank Correlation - Langkah Perhitungan")
     df_detail = df_merge.copy()
     df_detail = df_detail.rename(columns={"Ranking": "Rank Sistem","Rank Pakar": "Rank Pakar"})
@@ -3656,11 +3651,9 @@ elif selected == "Evaluasi":
         st.latex(rf"\rho = {rho:.4f}")
         st.success(f"**Nilai Koefisien Korelasi ($\\rho$) = {rho:.4f}**")
         st.markdown("**Cara Membaca Nilai Spearman Rank ($\\rho$):**")
-        st.markdown("""
-        *   **Nilai mendekati 1**: Peringkat yang dihasilkan oleh sistem/aplikasi sangat akurat karena searah dengan keputusan pakar.
+        st.markdown(""" *   **Nilai mendekati 1**: Peringkat yang dihasilkan oleh sistem/aplikasi sangat akurat karena searah dengan keputusan pakar.
         *   **Nilai mendekati 0**: Tidak ada hubungan antara hasil sistem dengan pakar (hasilnya acak).
-        *   **Nilai mendekati -1**: Hasil peringkat sistem terbalik total dengan urutan pilihan milik pakar.
-        """)
+        *   **Nilai mendekati -1**: Hasil peringkat sistem terbalik total dengan urutan pilihan milik pakar. """)
     else:
         st.info("Tidak cukup data untuk menghitung Spearman (n <= 1)")
     st.subheader("5️⃣ Perhitungan NDCG - Langkah Perhitungan")
@@ -3725,7 +3718,7 @@ elif selected == "Evaluasi":
     st.latex(rf"\text{{NDCG}}@{k} = \frac{{{dcg:.6f}}}{{{idcg:.6f}}}")
     st.success(f"**Nilai NDCG@{k} = {ndcg_val:.4f}**")
     st.markdown(f"**Cara Membaca Nilai NDCG@{k}:**")
-    st.markdown(f"""*   **Nilai mendekati 1**: Rekomendasi peringkat sistem sangat akurat karena berhasil menempatkan alternatif pilihan terbaik pakar di bagian paling atas daftar.
+    st.markdown(f""" *   **Nilai mendekati 1**: Rekomendasi peringkat sistem sangat akurat karena berhasil menempatkan alternatif pilihan terbaik pakar di bagian paling atas daftar.
     *   **Nilai mendekati 0**: Susunan rekomendasi sistem di bagian atas daftar sangat tidak sesuai dengan urutan ideal milik pakar.""")
     st.header("📊 Hasil Evaluasi Semua Skenario")
     hasil = []
@@ -3752,8 +3745,11 @@ elif selected == "Evaluasi":
         hasil.append({"Skenario": s["nama"],"Metode": s["metode"],"Catatan": s.get("catatan","-"),"Spearman": round(sp,4),f"NDCG@{k}": round(nd,4)})
     df_hasil = pd.DataFrame(hasil)
     st.dataframe(df_hasil, use_container_width=True)
+    st.markdown(""" 💡 **Panduan Nilai (Skala 0-1):** Semakin mendekati **1.00**, hasil skenario sistem semakin akurat.
+    * **Spearman:** Mengukur korelasi kemiripan ranking secara **keseluruhan**.
+    * **NDCG:** Mengukur ketepatan urutan alternatif pada ranking **teratas (Top-K)** saja. """)
     st.subheader("🏆 Alternatif Terbaik (rata-rata nilai preferensi tertinggi dari semua skenario)")
-    st.markdown("""**Penjelasan singkat sumber hasil:**
+    st.markdown(""" **Penjelasan singkat sumber hasil:**
 
     - Hasil terbaik ditentukan dari *rata‑rata preferensi* (Mean Preferensi) setiap alternatif yang dihitung dari semua skenario yang tersimpan.
     - Untuk tiap skenario, aplikasi mengambil tabel `ranking` yang berisi kolom `Alternatif` dan `Preferensi`. Nilai preferensi tersebut digabung ke dalam satu daftar, lalu dihitung rata‑rata per alternatif.
@@ -3795,7 +3791,7 @@ elif selected == "Evaluasi":
     df_stabil = df_hasil.groupby("Metode").agg({"Spearman": ["mean", "std"],f"NDCG@{k}": ["mean", "std"]}).reset_index()
     df_stabil.columns = ["Metode","Mean Spearman","Std Spearman",f"Mean NDCG@{k}",f"Std NDCG@{k}"]
     st.dataframe(df_stabil, use_container_width=True)
-    st.markdown("""**Keterangan singkat (Mean & Std):**
+    st.markdown(""" **Keterangan singkat (Mean & Std):**
 
     - Mean (rata‑rata): menunjukkan nilai rata‑rata metrik (Spearman atau NDCG@K) untuk tiap metode di seluruh skenario. Mean tinggi berarti metode cenderung memberikan hasil yang lebih mirip dengan pakar (untuk Spearman) atau lebih mendekati urutan ideal (untuk NDCG).
     - Std (standar deviasi): mengukur variasi/metrik antar skenario. Std kecil berarti hasil metode stabil/konisten antar skenario; Std besar berarti hasil sangat berfluktuasi tergantung skenario.
@@ -3804,7 +3800,7 @@ elif selected == "Evaluasi":
     - Metode yang baik biasanya memiliki Mean tinggi dan Std kecil (konsisten & akurat).
     - Di halaman ini memilih "Metode Paling Stabil" berdasarkan Std (variansi Spearman terendah), karena stabilitas penting untuk konsistensi rekomendasi.""")
     terbaik_stabil = df_stabil.sort_values(by="Std Spearman").iloc[0]
-    st.success(f"""📌 Metode Paling Stabil: {terbaik_stabil['Metode']}
+    st.success(f""" 📌 Metode Paling Stabil: {terbaik_stabil['Metode']}
 
     Alasan:
     - Variasi Spearman paling kecil (Std = {terbaik_stabil['Std Spearman']:.4f})
@@ -3812,4 +3808,4 @@ elif selected == "Evaluasi":
 st.markdown(""" <style>.footer{position:fixed;left:0;bottom:0;width:100%;background:linear-gradient(90deg,#0f766e,#14b8a6);color:white;text-align:center;padding:10px;font-size:14px;font-weight:500;z-index:999;box-shadow:0 -2px 12px rgba(0,0,0,0.12);}
 .footer span{font-weight:700;color:#ffffff;}
 .block-container{padding-bottom:70px;}
-</style><div class="footer">© 2026 Sistem Pendukung Keputusan Pemilihan Varietas Benih Padi | Developed by <span>Adi Sahrul Ramadhan</span></div>""", unsafe_allow_html=True)    
+</style><div class="footer">© 2026 Sistem Pendukung Keputusan Pemilihan Varietas Benih Padi | Developed by <span>Adi Sahrul Ramadhan</span></div>""", unsafe_allow_html=True)        
