@@ -620,7 +620,7 @@ elif selected == "Penyesuaian Data":
                         df_temp[quick_col_name] = "0" if quick_col_type == "Numerik" else ""
                         st.session_state.data_edit = df_temp
                         st.success(f"✅ Kolom '{quick_col_name}' ditambahkan ke editor")
-                        st.experimental_rerun()
+                        st.rerun()
             cols_removable = [c for c in st.session_state.data_edit.columns]
             sel_remove = st.multiselect("Pilih kolom untuk dihapus dari editor", cols_removable)
             st.caption("Pilih kolom yang ingin dihapus dari editor (tidak dihapus otomatis dari database sampai Anda klik 'Simpan Perubahan Data')")
@@ -634,7 +634,7 @@ elif selected == "Penyesuaian Data":
                             df_temp.drop(columns=[c], inplace=True)
                     st.session_state.data_edit = df_temp
                     st.success(f"✅ Kolom {', '.join(sel_remove)} dihapus dari editor")
-                    st.experimental_rerun()
+                    st.rerun()
             st.markdown("---")
             st.markdown("**Ubah Nama Kolom**")
             rcol1, rcol2 = st.columns([3,3])
@@ -658,7 +658,7 @@ elif selected == "Penyesuaian Data":
                             df_temp.rename(columns={col_to_rename: new_col_name}, inplace=True)
                             st.session_state.data_edit = df_temp
                             st.success(f"✅ Kolom '{col_to_rename}' berhasil diganti menjadi '{new_col_name}'")
-                            st.experimental_rerun()
+                            st.rerun()
                 except Exception as e:
                     st.error(f"❌ Gagal mengganti nama kolom: {e}")
         col1, col2 = st.columns(2)
