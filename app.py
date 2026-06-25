@@ -3017,9 +3017,10 @@ elif selected == "Panduan Input":
                                     best_err = err
                                     best = (i,j,k,aij,ajk,aik,err)
             return best
-        A_consistent = pd.DataFrame([[1.0, 0.3333, 2.0],[3.0, 1.0,    3.0],[0.5, 0.3333, 1.0]],columns=["C1","C2","C3"],index=["C1","C2","C3"])
-        A_inconsistent = pd.DataFrame([[1.0, 9.0, 7.0],[1.0/9.0, 1.0, 8.0],[1.0/7.0, 1.0/8.0, 1.0]],columns=["C1","C2","C3"],index=["C1","C2","C3"])
-        pilihan = st.selectbox("📋 Pilih Contoh Matriks:",["Contoh Konsisten", "Contoh Tidak Konsisten"],index=0,key="panduan_example_select")
+        kriteria_guide = ["C1 (Kriteria 1)", "C2 (Kriteria 2)", "C3 (Kriteria 3)"]
+        A_consistent = pd.DataFrame([[1.0, 0.3333, 2.0],[3.0, 1.0,    3.0],[0.5, 0.3333, 1.0]],columns=kriteria_guide,index=kriteria_guide)
+        A_inconsistent = pd.DataFrame([[1.0, 9.0, 7.0],[1.0/9.0, 1.0, 8.0],[1.0/7.0, 1.0/8.0, 1.0]],columns=kriteria_guide,index=kriteria_guide)
+        pilihan = st.selectbox("📋 Pilih Contoh Matriks:",["Contoh Konsisten", "Contoh Tidak Xiaokonsisten"],index=0,key="panduan_example_select")
         st.caption("Pilih contoh untuk memuat matriks. Anda dapat mengubah nilai di bagian atas diagonal.")
         if pilihan == "Contoh Konsisten":
             default_matrix = A_consistent.copy()
@@ -3092,7 +3093,6 @@ elif selected == "Panduan Input":
         """, unsafe_allow_html=True)
         st.markdown("**📊 Matriks Perbandingan Berpasangan AHP**")
         st.caption("Isi hanya bagian atas diagonal (di atas garis diagonal). Bagian bawah akan terisi otomatis sebagai reciprocal (1/nilai).")
-        kriteria_guide = ["C1 (Kriteria 1)", "C2 (Kriteria 2)", "C3 (Kriteria 3)"]
         n_guide = len(kriteria_guide)
         matrix_guide = pd.DataFrame(1.0, index=kriteria_guide, columns=kriteria_guide)
         prev_matrix_guide = st.session_state.panduan_matrix.copy()
@@ -3107,7 +3107,7 @@ elif selected == "Panduan Input":
             for j in range(n_guide):
                 if i < j:
                     prev_val = float(prev_matrix_guide.iloc[i, j])
-                    val = row_cols[j+1].number_input(label=f"{kriteria_guide[i]} vs {kriteria_guide[j]}",min_value=0.111,max_value=9.0,value=prev_val,step=0.5,format="%.3f",key=f"panduan_ahp_{i}_{j}",label_visibility="collapsed")
+                    val = row_cols[j+1].number_input(label=f"{kriteria_guide[i]} vs {kriteria_guide[j]}",min_value=0.111,max_value=9.0,value=prev_val,step=0.5,format="%.3f",key=f"panduan_ahp_{i}_{j}_{pilihan}",label_visibility="collapsed")
                     matrix_guide.iloc[i, j] = val
                     matrix_guide.iloc[j, i] = round(1.0 / val, 4)
                 elif i == j:
