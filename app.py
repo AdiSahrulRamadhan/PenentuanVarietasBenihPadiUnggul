@@ -723,7 +723,7 @@ elif selected == "Penyesuaian Data":
         st.subheader("2️⃣ Pilih Kriteria")
         st.markdown("""
         **Penjelasan:**
-        Kriteria adalah variabel yang digunakan dalam proses penilaian.
+        Kriteria adalah kolom yang digunakan dalam proses penilaian.
 
         **Tujuan:**
         Menentukan faktor yang mempengaruhi keputusan.
